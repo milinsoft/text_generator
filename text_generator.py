@@ -2,7 +2,7 @@ from nltk.tokenize import WhitespaceTokenizer
 import nltk
 
 
-#f = open("/Users/aleksander/Downloads/corpus.txt", "r", encoding="utf-8")   # str
+# f = open("/Users/aleksander/Downloads/corpus.txt", "r", encoding="utf-8")   # str
 
 
 f = open(input(), "r", encoding="utf-8")   # str
@@ -13,13 +13,6 @@ tk = WhitespaceTokenizer()
 tokens = tk.tokenize(a)
 bigrams_tuple = tuple(nltk.bigrams(tokens))
 
-
-# THE FIRST STAGE OUTPUT LINES
-# print("Corpus statistics")
-# print("All tokens:", len(tokens))
-# print("Unique tokens:", len(set(tokens)))
-
-# SECOND STAGE
 
 print("Number of bigrams:", len(bigrams_tuple))
 print()
@@ -41,7 +34,7 @@ def token_by_index() -> "requested token, error message, or index":
             print("Index Error. Please input an integer that is in the range of the corpus.")
             return token_by_index()
         else:
-            print(tokens[int(bigram_index)])
+            print(tokens[int(token_index)])
 
 
 def bigrams_by_index() -> "requested bigram's head and tail, error message, or index":
@@ -60,11 +53,10 @@ def bigrams_by_index() -> "requested bigram's head and tail, error message, or i
             print("Index Error. Please input an integer that is in the range of the corpus.")
             return bigrams_by_index()
         else:
-            head = bigrams_tuple[int(bigram_index )][0]
-            tail = bigrams_tuple[int(bigram_index )][1]
+            head = bigrams_tuple[int(bigram_index)][0]
+            tail = bigrams_tuple[int(bigram_index)][1]
             print(f"Head: {head}\tTail: {tail}")
 
 
 while True:
     bigrams_by_index()
-
