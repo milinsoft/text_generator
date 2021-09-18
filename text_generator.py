@@ -1,17 +1,30 @@
 from nltk.tokenize import WhitespaceTokenizer
 import nltk
+from collections import Counter
 
 
-# f = open("/Users/aleksander/Downloads/corpus.txt", "r", encoding="utf-8")   # str
+#f = open("/Users/aleksander/Downloads/corpus.txt", "r", encoding="utf-8")   # str
 
 
-f = open(input(), "r", encoding="utf-8")   # str
+with open(input(), "r", encoding="utf-8") as file:
+    file_content = file.readlines()
 
-a = f.readlines()
-a = "".join(a)
+
+file_as_str = "".join(file_content)
 tk = WhitespaceTokenizer()
-tokens = tk.tokenize(a)
+tokens = tk.tokenize(file_as_str)
 bigrams_tuple = tuple(nltk.bigrams(tokens))
+
+# print(list(nltk.bigrams(tokens)))
+
+markov_model_dict = {}
+
+for head, tail in bigrams_tuple:
+    markov_model_dict.setdefault(head, []).append(tail)
+
+
+for key in markov_model_dict:
+    markov_model_dict[key] = Counter(markov_model_dict[key])
 
 
 print("Number of bigrams:", len(bigrams_tuple))
@@ -58,5 +71,19 @@ def bigrams_by_index() -> "requested bigram's head and tail, error message, or i
             print(f"Head: {head}\tTail: {tail}")
 
 
+def markov_tails_by_head() -> "all the possible tails and their corresponding counts.":
+    markov_head = input()
+    if markov_head == "exit":
+        exit()
+    elif markov_head not in markov_model_dict:
+        print(f"Head: {markov_head}")
+        print("Key Error. The requested word is not in the model. Please input another word.")
+        return markov_tails_by_head()
+    else:
+        print(f"Head: {markov_head}")
+        for tail, counter in markov_model_dict[markov_head].items():
+            print(f"Tail: {tail}\tCount: {counter}")
+
+
 while True:
-    bigrams_by_index()
+    markov_tails_by_head()
