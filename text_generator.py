@@ -1,87 +1,72 @@
-import re
-
-from nltk.tokenize import WhitespaceTokenizer
-import nltk
-from collections import Counter
-import random
-
-
-def obtain_dataset_from_file():
+def obtain_dataset_from_file() -> str:
     with open(input(), "r", encoding="utf-8") as file:
-    #with open("/Users/aleksander/Downloads/corpus.txt", "r", encoding="utf-8") as file:
         file_content = file.readlines()
     return "".join(file_content)
 
 
-def set_initial_head():
-    #random_head = "".join(random.choices(list(markov_model_dict.keys())))
-    random_head = random.choices(list(markov_model_dict.keys()))
+def create_markov_model() -> dict:
+    """1) obtaining file content in a str. var.,
+    2) creates the trigrams_list of tokens,
+    3) creates the dictionary concatinating the first two tokens of trigram as a dictionary key
+    4) filling out markov_chain dict with all tokens that follows tokens, matching dictionary keys in a trigrams_list"""
+
+    file_as_str = obtain_dataset_from_file()
+    tk = WhitespaceTokenizer()  # instanse of WhitespaceTokenizer class
+    tokens = tk.tokenize(file_as_str)
+    trigrams_list = list(nltk.trigrams(tokens))
+    markov_chain = {}
+
+    for head_1, head_2, tail in trigrams_list:
+        head = "  ".join([head_1, head_2])
+        markov_chain.setdefault(head, list()).append(tail)
+
+    for key in markov_chain:
+        markov_chain[key] = dict(Counter(markov_chain[key]))
+    return markov_chain
+
+
+def set_initial_head() -> str:
+    """Obtains the 'first_word' which matches regex template to start the sentence"""
+    first_word = random.choices(list(markov_model_dict.keys()))
     template = r"(\A[A-Z][a-z]+  [A-Za-z]+)$"
-    if re.match(template, "".join(random_head)):
-        return "".join(random_head)
+    if re.match(template, "".join(first_word)):
+        return "".join(first_word)
     else:
         return set_initial_head()
 
 
-def lastword_check(lastword):
-    template = r"[A-Za-z]+[\.?!]{1}$"
-    return re.match(template, lastword)
+def generate_realsentence() -> str:
+    """1) calls set_initial_head() function to obtain the first token to start the pseudo sentence
+    2) looking for the next token for the pseudo sentence based on a double space concatination of the last two tokens until minimal length of the sentence, equal to 5 tokens satisfied
+    3) checks if the last token ends with a dot, a question mark or an exclamation mark
+    and terminates the loop if this condition is satisfied, continuing the loop checking every next step otherwise"""
 
-
-def generate_realsentence():
-    # don't forget to rename variables
-    #initial_head = "".join(set_initial_head())
     initial_head = set_initial_head().split()
-    sentence_list = []
-
-    for head in initial_head:
-        sentence_list.append(head)
-
-
-# create algoritm which adds the last two words
+    sentence_list = [head for head in initial_head]
 
     while True:
         current_tail = "  ".join([sentence_list[-2], sentence_list[-1]])
-
-
         potential_tails = [key for key in markov_model_dict[current_tail].keys()]
         tails_weights = [weight for weight in markov_model_dict[current_tail].values()]
         new_tail = "".join(random.choices(potential_tails, weights=tails_weights))
         sentence_list.append(new_tail)
-
         if len(sentence_list) >= 5:
-            # re-write this with a lastword check // verify regex as well
-            if sentence_list[-1][-1] in {"?", ".", "!", "..."}:
+            if sentence_list[-1][-1] in {"!", ".", "?"}:
                 break
-            else:
-                pass
+    print(" ".join(sentence_list))
 
 
-
-    sentence_str = " ".join(sentence_list)
-    print(sentence_str)
-
-def generate_realtext():
+def generate_realtext() -> "prints statements":
+    """Calls generate_realsentence() function 10 times in order to print 10 pseudo sentences"""
     for _ in range(10):
         generate_realsentence()
 
 
 if __name__ == '__main__':
-    print()
-    # obtaining dataset from file
-    file_as_str = obtain_dataset_from_file()
-    tk = WhitespaceTokenizer()
-    tokens = tk.tokenize(file_as_str)
-    trigrams_list = list(nltk.trigrams(tokens))
-
-
-
-    markov_model_dict = {}
-    for head_1, head_2, tail in trigrams_list:
-        head = "  ".join([head_1, head_2])
-        markov_model_dict.setdefault(head, list()).append(tail)
-
-    for key in markov_model_dict:
-        markov_model_dict[key] = dict(Counter(markov_model_dict[key]))
-
+    import re
+    from nltk.tokenize import WhitespaceTokenizer
+    import nltk
+    from collections import Counter
+    import random
+    markov_model_dict = create_markov_model()
     generate_realtext()
