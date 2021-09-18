@@ -1,34 +1,15 @@
 from nltk.tokenize import WhitespaceTokenizer
 import nltk
 from collections import Counter
+import random
+
+# file_content = open("/Users/aleksander/Downloads/corpus.txt", "r", encoding="utf-8").readlines()   # str
 
 
-#f = open("/Users/aleksander/Downloads/corpus.txt", "r", encoding="utf-8")   # str
-
-
-with open(input(), "r", encoding="utf-8") as file:
-    file_content = file.readlines()
-
-
-file_as_str = "".join(file_content)
-tk = WhitespaceTokenizer()
-tokens = tk.tokenize(file_as_str)
-bigrams_tuple = tuple(nltk.bigrams(tokens))
-
-# print(list(nltk.bigrams(tokens)))
-
-markov_model_dict = {}
-
-for head, tail in bigrams_tuple:
-    markov_model_dict.setdefault(head, []).append(tail)
-
-
-for key in markov_model_dict:
-    markov_model_dict[key] = Counter(markov_model_dict[key])
-
-
-print("Number of bigrams:", len(bigrams_tuple))
-print()
+def obtain_dataset_from_file():
+    with open(input(), "r", encoding="utf-8") as file:
+        file_content = file.readlines()
+    return "".join(file_content)
 
 
 def token_by_index() -> "requested token, error message, or index":
@@ -66,8 +47,8 @@ def bigrams_by_index() -> "requested bigram's head and tail, error message, or i
             print("Index Error. Please input an integer that is in the range of the corpus.")
             return bigrams_by_index()
         else:
-            head = bigrams_tuple[int(bigram_index)][0]
-            tail = bigrams_tuple[int(bigram_index)][1]
+            head = bigrams_tuple[bigram_index][0]
+            tail = bigrams_tuple[bigram_index][1]
             print(f"Head: {head}\tTail: {tail}")
 
 
@@ -81,9 +62,40 @@ def markov_tails_by_head() -> "all the possible tails and their corresponding co
         return markov_tails_by_head()
     else:
         print(f"Head: {markov_head}")
-        for tail, counter in markov_model_dict[markov_head].items():
-            print(f"Tail: {tail}\tCount: {counter}")
+        for bigram_tail, counter in markov_model_dict[markov_head].items():
+            print(f"Tail: {bigram_tail}\tCount: {counter}")
 
 
-while True:
-    markov_tails_by_head()
+def generate_pseudosentence() -> "pseudo sentence from 10 tokens":
+    random_head = "".join(random.choices(list(markov_model_dict.keys())))
+    sentence_list = [random_head]
+    while len(sentence_list) != 10:
+        current_tail = sentence_list[-1]
+        potential_tails = [key for key in markov_model_dict[current_tail].keys()]
+        tails_weights = [weight for weight in markov_model_dict[current_tail].values()]
+        new_tail = "".join(random.choices(potential_tails, weights=tails_weights))
+        sentence_list.append(new_tail)
+    sentence_str = " ".join(sentence_list)
+    print(sentence_str)
+
+
+def generate_pseudotext() -> "10 pseudo-sentences with 10 tokens each":
+    for _ in range(10):
+        generate_pseudosentence()
+
+
+if __name__ == '__main__':
+    print()
+    # obtaining dataset from file
+    file_as_str = obtain_dataset_from_file()
+    tk = WhitespaceTokenizer()
+    tokens = tk.tokenize(file_as_str)
+    bigrams_tuple = tuple(nltk.bigrams(tokens))
+    markov_model_dict = {}
+    for head, tail in bigrams_tuple:
+        markov_model_dict.setdefault(head, list()).append(tail)
+
+    for key in markov_model_dict:
+        markov_model_dict[key] = Counter(markov_model_dict[key])
+
+    generate_pseudotext()
