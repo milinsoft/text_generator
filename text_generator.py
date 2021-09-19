@@ -4,14 +4,14 @@ def obtain_dataset_from_file() -> str:
     return "".join(file_content)
 
 
-def create_markov_model() -> dict:
+def create_markov_chain() -> dict:
     """1) obtaining file content in a str. var.,
     2) creates the trigrams_list of tokens,
     3) creates the dictionary concatinating the first two tokens of trigram as a dictionary key
     4) filling out markov_chain dict with all tokens that follows tokens, matching dictionary keys in a trigrams_list"""
 
-    file_as_str = obtain_dataset_from_file()
     tk = WhitespaceTokenizer()  # instanse of WhitespaceTokenizer class
+    file_as_str = obtain_dataset_from_file()
     tokens = tk.tokenize(file_as_str)
     trigrams_list = list(nltk.trigrams(tokens))
     markov_chain = {}
@@ -53,13 +53,13 @@ def generate_realsentence() -> str:
         if len(sentence_list) >= 5:
             if sentence_list[-1][-1] in {"!", ".", "?"}:
                 break
-    print(" ".join(sentence_list))
+    return " ".join(sentence_list)
 
 
-def generate_realtext() -> "prints statements":
+def generate_realtext():
     """Calls generate_realsentence() function 10 times in order to print 10 pseudo sentences"""
     for _ in range(10):
-        generate_realsentence()
+        print(generate_realsentence())
 
 
 if __name__ == '__main__':
@@ -68,5 +68,5 @@ if __name__ == '__main__':
     import nltk
     from collections import Counter
     import random
-    markov_model_dict = create_markov_model()
+    markov_model_dict = create_markov_chain()
     generate_realtext()
